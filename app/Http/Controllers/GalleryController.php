@@ -12,8 +12,33 @@ class GalleryController extends Controller
         $gallery = GalleryItem::all(['id','title','image_url','category']);
 
         return response()->json([
-            'status'=>'success',
             'data'=> $gallery
         ]);
+    }
+
+    public function store(Request $request){
+        $validated = $request->validate([
+            'title'=>'required|string',
+            'category'=>'nullable|string',
+            'image'=>'required|image|max:4096'
+        ]);
+
+        $path = $request->file('image')->store('gallery','public');
+
+        $item = GalleryItem::create([
+            'title'=>$validated['title'],
+            'category'=>$validated['category'] ?? null,
+            'image_url'=>asset('storage/'.$path)
+        ]);
+
+        return response()->json(['data'=>$item]);
+    }
+
+    public function destroy($id){
+        $item = GalleryItem::findOrFail($id);
+        $item->delete();
+
+        return response()->json(['message'=>'Deleted']);
+
     }
 }

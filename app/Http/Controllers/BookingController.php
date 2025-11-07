@@ -28,4 +28,22 @@ class BookingController extends Controller
             'data'=>$booking
         ]);
     }
+
+    //ADMIN
+    public function index(){
+        return response()->json([
+            'data'=>Booking::orderByDesc('created_at')->get()
+        ]);
+    }
+
+    public function update(Request $request, $id){
+        $data = $request->validate([
+            'status'=>'required|string'
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $booking->update(['status'=>$data['status']]);
+
+        return response()->json(['message'=>'Status updated']);
+    }
 }
